@@ -92,10 +92,10 @@ public class BLEAdvertiser {
             //use manufacturer data
             final AdvertiseData advertiseData = m.buildManufacturerData();
 
-            byte[] bytes = advertiseData.getServiceData().get(BLENetworkService.Service_UUID);
-            if (bytes != null) {
-                Log.v("BLEAdvertiser", "service data length " + String.valueOf(bytes.length) + ": " + BLENetworkMessage.byteArrayToString(bytes));
-            }
+//            byte[] bytes = advertiseData.getServiceData().get(BLENetworkService.Service_UUID);
+//            if (bytes != null) {
+//                Log.v("BLEAdvertiser", "service data length " + String.valueOf(bytes.length) + ": " + BLENetworkMessage.byteArrayToString(bytes));
+//            }
             SparseArray<byte[]> manufacturer = advertiseData.getManufacturerSpecificData();
 
             for (int q = 0; q < manufacturer.size(); q++) {
@@ -180,7 +180,8 @@ public class BLEAdvertiser {
         settingsBuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER);
 //        settingsBuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
         settingsBuilder.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
-        settingsBuilder.setConnectable(false);
+//        settingsBuilder.setConnectable(false);
+        settingsBuilder.setConnectable(true);
         settingsBuilder.setTimeout(BLENetworkService.ADVERTISE_DURATION);
         return settingsBuilder.build();
     }

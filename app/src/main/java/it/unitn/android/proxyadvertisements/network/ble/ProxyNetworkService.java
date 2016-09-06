@@ -2,14 +2,11 @@
  * Created by mat - 2016
  */
 
-package it.unitn.android.proxyadvertisements.network.proxy;
+package it.unitn.android.proxyadvertisements.network.ble;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -19,15 +16,14 @@ import java.util.UUID;
 import it.unitn.android.proxyadvertisements.app.MessageKeys;
 import it.unitn.android.proxyadvertisements.app.ServiceConnector;
 import it.unitn.android.proxyadvertisements.network.NetworkMessage;
+import it.unitn.android.proxyadvertisements.network.ProxyService;
 
-
-public class ProxyNetworkService {
-
+public class ProxyNetworkService implements ProxyService {
     /*
-    * Constants
-     */
+      * Constants
+       */
     public static final UUID Service_UUID = UUID
-            .fromString("0000b81d-0000-1000-8001-00805f9b34fb");
+            .fromString("0000b81d-0000-1000-8001-00805f9b34fd");
 
 
     /*
@@ -40,6 +36,7 @@ public class ProxyNetworkService {
     /*
     * Bluetooth
      */
+    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mAdapter;
 
 
@@ -49,7 +46,7 @@ public class ProxyNetworkService {
     private boolean isAvailable;
     private boolean isSupported;
 
-     /*
+      /*
     * Data
      */
 
@@ -61,6 +58,8 @@ public class ProxyNetworkService {
 
     public ProxyNetworkService(Context context, ServiceConnector serviceConnector) {
         mAdapter = null;
+        mBluetoothManager = null;
+
         isAvailable = false;
         isSupported = false;
         isConnected = false;
@@ -86,15 +85,26 @@ public class ProxyNetworkService {
     public void init(Bundle bundle) {
         Log.v("ProxyNetworkService", "init");
 
-
-        mAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
+        mAdapter = mBluetoothManager.getAdapter();
 
         if (mAdapter != null) {
             isSupported = true;
 
             //check if active
             if (mAdapter.isEnabled()) {
-                isAvailable = true;
+//                //read address
+//                _address = readAddress(mAdapter);
+
+                //check for capabilities
+                if (mAdapter.isMultipleAdvertisementSupported()) {
+                    //set as active
+                    isAvailable = true;
+
+                } else {
+                    //disable support
+                    isSupported = false;
+                }
 
             } else {
                 //set not active
@@ -121,7 +131,7 @@ public class ProxyNetworkService {
 
         //start connection
         if (mServer == null) {
-            mServer = new ProxyServer(mAdapter, mService);
+            mServer = new ProxyServer(mAdapter, mBluetoothManager, mContext, mService);
         }
 
         //listen
@@ -130,7 +140,6 @@ public class ProxyNetworkService {
         //start indefinitely
         isActive = true;
 
-        mContext.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
 
     }
 
@@ -139,11 +148,6 @@ public class ProxyNetworkService {
 
         //set inactive
         isActive = false;
-
-        try {
-            mContext.unregisterReceiver(mReceiver);
-        } catch (Exception ex) {
-        }
 
         if (mServer != null) {
             mServer.disconnect();
@@ -156,8 +160,8 @@ public class ProxyNetworkService {
     }
 
     /*
-    * Broadcast
-     */
+   * Broadcast
+    */
     public void send(NetworkMessage msg) {
         //replace message
         mMessage = ProxyNetworkMessage.parse(msg);
@@ -174,34 +178,5 @@ public class ProxyNetworkService {
     protected String readAddress(BluetoothAdapter adapter) {
         return adapter.getAddress();
     }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,
-                    BluetoothDevice.ERROR);
-
-            if (state == BluetoothDevice.BOND_BONDED) {
-                Log.v("ProxyNetworkService", "Device " + device + " PAIRED");
-            } else if (state == BluetoothDevice.BOND_BONDING) {
-                Log.v("ProxyNetworkService", "Device " + device + " pairing is in process...");
-            } else if (state == BluetoothDevice.BOND_NONE) {
-                Log.v("ProxyNetworkService", "Device " + device + " is unpaired");
-
-                //check for active connection and restart
-                if (isActive) {
-                    if (mServer != null) {
-                        mServer.disconnect();
-                        mServer.listen();
-                    }
-                }
-
-
-            } else {
-                Log.v("ProxyNetworkService", "Device " + device + " is in undefined state");
-            }
-        }
-    };
 
 }

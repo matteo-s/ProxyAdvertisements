@@ -25,81 +25,81 @@ public class BLENetworkMessage extends NetworkMessage {
         addresses = new HashMap<>();
     }
 
-    /**
-     * Returns an AdvertiseData object which includes the Service UUID and Device Name.
-     */
-    public AdvertiseData buildServiceData() {
-
-        /**
-         * Note: There is a strict limit of 31 Bytes on packets sent over BLE Advertisements.
-         *  This includes everything put into AdvertiseData including UUIDs, device info, &
-         *  arbitrary service or manufacturer data.
-         *  Attempting to send packets over this limit will result in a failure with error code
-         *  AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE. Catch this error in the
-         *  onStartFailure() method of an AdvertiseCallback implementation.
-         */
-
-        AdvertiseData.Builder dataBuilder = new AdvertiseData.Builder();
-        dataBuilder.setIncludeTxPowerLevel(true);
-        dataBuilder.setIncludeDeviceName(false);
-
-        //disable service uuid, rely on manufacturer data
-//        dataBuilder.addServiceUuid(BLENetworkService.Service_UUID);
-
-
-        /* For example - this will cause advertising to fail (exceeds size limit) */
-        //String failureData = "asdghkajsghalkxcjhfa;sghtalksjcfhalskfjhasldkjfhdskf";
-        //dataBuilder.addServiceData(Constants.Service_UUID, failureData.getBytes());
-
-        //
-        //declare a fixed length payload
-//        int length = 3 + (2 * SLOTS);
-        int length = 1 + (1 * SLOTS);
-        byte[] bytes = new byte[length];
-
-        //consider id as byte - limits to 127 ids
-        //could use masks to convert to 4 bytes
-//        data[0] = (byte) width;
-//        data[1] = (byte) (width >>> 8);
-//        data[2] = (byte) (width >>> 16);
-//        data[3] = (byte) (width >>> 24);
-        byte s = (byte) sender;
-
-        //add as 0
-        bytes[0] = s;
-
-
-        //store clock as 2 bytes - disabled due to space limit
-//        bytes[1] = (byte) clock;
-//        bytes[2] = (byte) (clock >>> 8);
-
-
-        //remaining space allocated to slots of 1 bytes
-//        int k = 3;
-        int k = 1;
-        for (int i = 1; i <= SLOTS; i++) {
-            short c = 0;
-            if (clocks.containsKey(i)) {
-                c = clocks.get(i);
-            }
-            //add sender
-            if (i == sender) {
-                c = clock;
-            }
-
-            //store as 1 bytes
-            //java byte is signed, need to read with mask at receive side
-            bytes[k] = (byte) c;
-
-            //increment
-            k = k + 1;
-        }
-
-        //build on service data
-        dataBuilder.addServiceData(BLENetworkService.Service_UUID, bytes);
-        return dataBuilder.build();
-
-    }
+//    /**
+//     * Returns an AdvertiseData object which includes the Service UUID and Device Name.
+//     */
+//    public AdvertiseData buildServiceData() {
+//
+//        /**
+//         * Note: There is a strict limit of 31 Bytes on packets sent over BLE Advertisements.
+//         *  This includes everything put into AdvertiseData including UUIDs, device info, &
+//         *  arbitrary service or manufacturer data.
+//         *  Attempting to send packets over this limit will result in a failure with error code
+//         *  AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE. Catch this error in the
+//         *  onStartFailure() method of an AdvertiseCallback implementation.
+//         */
+//
+//        AdvertiseData.Builder dataBuilder = new AdvertiseData.Builder();
+//        dataBuilder.setIncludeTxPowerLevel(true);
+//        dataBuilder.setIncludeDeviceName(false);
+//
+//        //disable service uuid, rely on manufacturer data
+////        dataBuilder.addServiceUuid(BLENetworkService.Service_UUID);
+//
+//
+//        /* For example - this will cause advertising to fail (exceeds size limit) */
+//        //String failureData = "asdghkajsghalkxcjhfa;sghtalksjcfhalskfjhasldkjfhdskf";
+//        //dataBuilder.addServiceData(Constants.Service_UUID, failureData.getBytes());
+//
+//        //
+//        //declare a fixed length payload
+////        int length = 3 + (2 * SLOTS);
+//        int length = 1 + (1 * SLOTS);
+//        byte[] bytes = new byte[length];
+//
+//        //consider id as byte - limits to 127 ids
+//        //could use masks to convert to 4 bytes
+////        data[0] = (byte) width;
+////        data[1] = (byte) (width >>> 8);
+////        data[2] = (byte) (width >>> 16);
+////        data[3] = (byte) (width >>> 24);
+//        byte s = (byte) sender;
+//
+//        //add as 0
+//        bytes[0] = s;
+//
+//
+//        //store clock as 2 bytes - disabled due to space limit
+////        bytes[1] = (byte) clock;
+////        bytes[2] = (byte) (clock >>> 8);
+//
+//
+//        //remaining space allocated to slots of 1 bytes
+////        int k = 3;
+//        int k = 1;
+//        for (int i = 1; i <= SLOTS; i++) {
+//            short c = 0;
+//            if (clocks.containsKey(i)) {
+//                c = clocks.get(i);
+//            }
+//            //add sender
+//            if (i == sender) {
+//                c = clock;
+//            }
+//
+//            //store as 1 bytes
+//            //java byte is signed, need to read with mask at receive side
+//            bytes[k] = (byte) c;
+//
+//            //increment
+//            k = k + 1;
+//        }
+//
+//        //build on service data
+//        dataBuilder.addServiceData(BLENetworkService.Service_UUID, bytes);
+//        return dataBuilder.build();
+//
+//    }
 
     /**
      * Returns an AdvertiseData object which includes the Service UUID and Device Name.

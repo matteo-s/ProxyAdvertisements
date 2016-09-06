@@ -20,15 +20,19 @@ import android.os.Messenger;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import matteos.unitn.eu.proxyadvertisements.R;
 
-import java.util.Map;
 import java.util.UUID;
 
 import it.unitn.android.proxyadvertisements.MainActivity;
 import it.unitn.android.proxyadvertisements.network.NetworkMessage;
+import it.unitn.android.proxyadvertisements.network.ProxyService;
 import it.unitn.android.proxyadvertisements.network.ble.BLENetworkService;
-import it.unitn.android.proxyadvertisements.network.proxy.ProxyNetworkService;
-import matteos.unitn.eu.proxyadvertisements.R;
+//use bluetooth proxy
+//import it.unitn.android.proxyadvertisements.network.bluetooth.ProxyNetworkService;
+//use ble proxy
+import it.unitn.android.proxyadvertisements.network.ble.ProxyNetworkService;
+
 
 public class MainService extends Service {
 
@@ -44,7 +48,7 @@ public class MainService extends Service {
      */
 
     private BLENetworkService mNetworkService;
-    private ProxyNetworkService mProxyService;
+    private ProxyService mProxyService;
 
 
     /*

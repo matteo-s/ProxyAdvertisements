@@ -43,36 +43,36 @@ public class BLEReceiver extends ScanCallback {
             Log.v("BLEReceiver", "receive result from " + address + " rssi " + String.valueOf(rssi));
 
 
-            //check for service data
-            if (record.getServiceData().containsKey(BLENetworkService.Service_UUID)) {
-                byte[] bytes = record.getServiceData(BLENetworkService.Service_UUID);
-
-                Log.v("BLEReceiver", "receive data from " + address + " data length " + String.valueOf(bytes.length) + " : " + BLENetworkMessage.byteArrayToString(bytes));
-
-
-                //get message from service data bytes
-                BLENetworkMessage n = BLENetworkMessage.parseServiceData(bytes);
-
-                //set sender address
-                n.address = address;
-
-                StringBuilder vector = new StringBuilder();
-                for (int i = 1; i <= BLENetworkMessage.SLOTS; i++) {
-                    if (n.clocks.containsKey(i)) {
-                        vector.append(Short.toString(n.clocks.get(i)));
-                    } else {
-                        vector.append("0");
-                    }
-                }
-
-                Log.v("BLEReceiver", "received msg from " + address + " : " + vector.toString());
-
-                //directly send to service
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("n", n);
-
-                mService.sendMessage(MessageKeys.CLOCK_RECEIVE, bundle);
-            }
+//            //check for service data
+//            if (record.getServiceData().containsKey(BLENetworkService.Service_UUID)) {
+//                byte[] bytes = record.getServiceData(BLENetworkService.Service_UUID);
+//
+//                Log.v("BLEReceiver", "receive data from " + address + " data length " + String.valueOf(bytes.length) + " : " + BLENetworkMessage.byteArrayToString(bytes));
+//
+//
+//                //get message from service data bytes
+//                BLENetworkMessage n = BLENetworkMessage.parseServiceData(bytes);
+//
+//                //set sender address
+//                n.address = address;
+//
+//                StringBuilder vector = new StringBuilder();
+//                for (int i = 1; i <= BLENetworkMessage.SLOTS; i++) {
+//                    if (n.clocks.containsKey(i)) {
+//                        vector.append(Short.toString(n.clocks.get(i)));
+//                    } else {
+//                        vector.append("0");
+//                    }
+//                }
+//
+//                Log.v("BLEReceiver", "received msg from " + address + " : " + vector.toString());
+//
+//                //directly send to service
+//                Bundle bundle = new Bundle();
+//                bundle.putSerializable("n", n);
+//
+//                mService.sendMessage(MessageKeys.CLOCK_RECEIVE, bundle);
+//            }
 
             //check for manufacturer data
             byte[] manufacturerData = record.getManufacturerSpecificData(224);

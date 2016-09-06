@@ -2,7 +2,7 @@
  * Created by mat - 2016
  */
 
-package it.unitn.android.proxyadvertisements.network.proxy;
+package it.unitn.android.proxyadvertisements.network.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
